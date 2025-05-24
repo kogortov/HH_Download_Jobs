@@ -10,7 +10,8 @@ namespace DownloadJobsConsoleApp
 {
     public static class ManagerCsv
     {
-        static string directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Vacancy");
+        static string directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "HH Download Jobs");
+
 
         // Генерация имени файла с текущей датой и временем (с миллисекундами)
         static string fileName = $"Vacancy_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}.csv";

@@ -49,6 +49,11 @@ namespace DownloadJobsConsoleApp
 
             await RequestSearch.LoadVacanciesAsync(jobIds);
 
+            Console.WriteLine($"\nГотово! CSV файл лежит в пути: C:\\...\\Documents\\HH Download Jobs ");
+
+            Console.WriteLine("Нажмите любую клавишу для выхода...");
+            Console.ReadKey();
+
         }
     }
 }

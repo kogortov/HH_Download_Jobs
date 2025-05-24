@@ -119,40 +119,53 @@ namespace DownloadJobsConsoleApp
 
                 foreach (var jobId in jobIds)
                 {
-                    try
+                    bool success = false;
+
+                    while (!success)
                     {
-                        var response = await client.GetAsync($"https://api.hh.ru/vacancies/{jobId}");
-                        response.EnsureSuccessStatusCode();
-
-                        var json = await response.Content.ReadAsStringAsync();
-
-                        // Десериализуем в промежуточный класс
-                        var vacancyRaw = JsonConvert.DeserializeObject<VacancyRaw>(json);
-
-                        
-
-                        // Преобразуем в наш объект Vacancy
-                        var vacancy = new VacancyRaw
+                        try
                         {
-                            Id = vacancyRaw.Id,
-                            Name = vacancyRaw.Name,
-                            Description = CleanHtml(vacancyRaw.Description),
-                            BrandedDescription = CleanHtml(vacancyRaw.BrandedDescription),
-                            KeySkills = vacancyRaw.KeySkills
-                        };
+                            var response = await client.GetAsync($"https://api.hh.ru/vacancies/{jobId}");
+                            response.EnsureSuccessStatusCode();
 
-                        // Добавляем в CSV файл
-                        ManagerCsv.WriteReport(vacancy);
+                            var json = await response.Content.ReadAsStringAsync();
+                            var vacancyRaw = JsonConvert.DeserializeObject<VacancyRaw>(json);
 
+                            var vacancy = new VacancyRaw
+                            {
+                                Id = vacancyRaw.Id,
+                                Name = vacancyRaw.Name,
+                                Description = CleanHtml(vacancyRaw.Description),
+                                BrandedDescription = CleanHtml(vacancyRaw.BrandedDescription),
+                                KeySkills = vacancyRaw.KeySkills
+                            };
 
-                        // Генерируем рандом
-                        Random random = new Random();
-                        int delay = random.Next(1000, 3001);
-                        await Task.Delay(delay);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Ошибка при загрузке вакансии {jobId}: {ex.Message}");
+                            ManagerCsv.WriteReport(vacancy);
+
+                            // Рандомная задержка
+                            Random random = new Random();
+                            int delay = random.Next(3000, 7001);
+                            await Task.Delay(delay);
+
+                            success = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Ошибка при загрузке вакансии {jobId}: {ex.Message}");
+                            string input;
+                            do
+                            {
+                                Console.Write("Повторить попытку? (y/n): ");
+                                input = Console.ReadLine()?.Trim().ToLower();
+                            }
+                            while (input != "y" && input != "n");
+
+                            if (input == "n")
+                            {
+                                Console.WriteLine("Пропускаем вакансию.");
+                                break;
+                            }
+                        }
                     }
                 }
             }
