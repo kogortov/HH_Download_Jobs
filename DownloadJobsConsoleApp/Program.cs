@@ -13,25 +13,34 @@ namespace DownloadJobsConsoleApp
         {
             // ASCII-арт
             string asciiArt = @"
-  
-   _____      _             __      __                              
-  / ____|    | |            \ \    / /                              
- | |  __  ___| |_ ___ _ __   \ \  / /_ _  ___ __ _ _ __   ___ _   _ 
- | | |_ |/ _ \ __/ _ \ '__|   \ \/ / _` |/ __/ _` | '_ \ / __| | | |
- | |__| |  __/ ||  __/ |       \  / (_| | (_| (_| | | | | (__| |_| |
-  \_____|\___|\__\___|_|        \/ \__,_|\___\__,_|_| |_|\___|\__, |
-                                                               __/ |
-                                                              |___/ 
 
-                                                                     
+                                                                                       ▄▄                          ▄▄                            ▄▄               
+▀████▀  ▀████▀▀████▀  ▀████▀▀       ▀███▀▀▀██▄                                       ▀███                        ▀███            ▀████▀         ▄██               
+  ██      ██    ██      ██            ██    ▀██▄                                       ██                          ██              ██            ██               
+  ██      ██    ██      ██            ██     ▀██ ▄██▀██▄▀██▀    ▄█    ▀██▀████████▄    ██   ▄██▀██▄ ▄█▀██▄    ▄█▀▀███              ██   ▄██▀██▄  ██▄████▄  ▄██▀███
+  ██████████    ██████████            ██      ████▀   ▀██ ██   ▄███   ▄█   ██    ██    ██  ██▀   ▀███   ██  ▄██    ██              ██  ██▀   ▀██ ██    ▀██ ██   ▀▀
+  ██      ██    ██      ██            ██     ▄████     ██  ██ ▄█  ██ ▄█    ██    ██    ██  ██     ██▄█████  ███    ██              ██  ██     ██ ██     ██ ▀█████▄
+  ██      ██    ██      ██            ██    ▄██▀██▄   ▄██   ███    ███     ██    ██    ██  ██▄   ▄███   ██  ▀██    ██         ███  ██  ██▄   ▄██ ██▄   ▄██ █▄   ██
+▄████▄  ▄████▄▄████▄  ▄████▄▄       ▄████████▀   ▀█████▀     █      █    ▄████  ████▄▄████▄ ▀█████▀▀████▀██▄ ▀████▀███▄        █████    ▀█████▀  █▀█████▀  ██████▀
+                                                                                                                                                                  
+                                                                                                                                                                  
+                                                                                                                                                                                                                        
         ";
 
-            // Название компании и автор
-            string author = "Автор: Kogortov";
+            // Название компании и автор    
+            string author = "Kogortov";
+            string releaseDate = "24.05.2025";
             string gitHub = "https://github.com/kogortov";
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(asciiArt);
-            Console.WriteLine(author);
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine($"Автор: { author}");
+            Console.WriteLine($"Дата релиза: {releaseDate}");
             Console.WriteLine($"{gitHub}\n");
+            Console.ResetColor();
 
             await Profile.CreateProfile();
 

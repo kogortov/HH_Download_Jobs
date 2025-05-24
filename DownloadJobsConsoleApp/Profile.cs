@@ -18,10 +18,19 @@ namespace DownloadJobsConsoleApp
         // Создать профиль
         public static async Task CreateProfile()
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             // Получаем код
-            Console.WriteLine("Перейдите по ссылке, авторизируетесь и скопируете полученною ссылку из браузера ↓");
+            Console.WriteLine("Алгоритм действий:");
+            Console.WriteLine("1.   Скопируйте ссылку ниже и вставьте её в браузер↓");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine($"https://hh.ru/oauth/authorize?response_type=code&client_id={ClientId}");
-            Console.WriteLine("Вставьте ссылку из браузера ↓\n");
+            Console.ResetColor();
+
+            Console.WriteLine("2.1. Сделайте авторизацию в HH по данной ссылке. После авторизации Вас переадресует на страницу «Не удается получить доступ к сайту», не пугайтесь!");
+            Console.WriteLine("2.2. Если Вы ранее уже были авторизованы на портале HH в браузере, то Вам необходимо нажать на кнопку «Продолжить». Далее Вас переадресует на страницу «Не удается получить доступ к сайту», не пугайтесь!");
+            
+            Console.WriteLine("3.   Скопируете из адресной строки браузера полученною ссылку после авторизации и вставьте ниже ↓\n");
+
             string authorizedLink = Console.ReadLine();
             AuthorizationCode = ExtractCodeFromUrl(authorizedLink);
 
