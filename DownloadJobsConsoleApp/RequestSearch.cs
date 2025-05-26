@@ -24,22 +24,19 @@ namespace DownloadJobsConsoleApp
         // Поисковый запрос (отрасль компании)
         public static string Industry { get; set; }
 
-       
+
+        // Поисковый запрос (специализация)
+        public static string Specialization { get; set; }
+
+
         // API для вакансий (пример с HH.ru)
         private static readonly string BaseUrl = "https://api.hh.ru/vacancies";
 
         // Метод для получения ID всех вакансий по заданному поисковому запросу
         public static async Task<List<int>> GetVacancyIdsAsync()
         {
-            Console.WriteLine("Введите название вакансии*.");
+            Console.WriteLine("Введите название вакансии.");
             Text = Console.ReadLine();
-
-            // Проверяем, что строка не пуста, если пуста — просим ввести повторно
-            while (string.IsNullOrEmpty(Text))
-            {
-                Console.WriteLine("Название вакансии не может быть пустым. Пожалуйста, введите название вакансии.");
-                Text = Console.ReadLine();
-            }
 
             Console.WriteLine("Введите id региона.");
             Region = Console.ReadLine();
@@ -47,6 +44,9 @@ namespace DownloadJobsConsoleApp
             Console.WriteLine("Введите id отрасли компании.");
             Industry = Console.ReadLine();
 
+            Console.WriteLine("Введите id специализации.");
+            Specialization = Console.ReadLine();
+            
             var vacancyIds = new List<int>(); // Список для хранения ID вакансий
             string url = $"{BaseUrl}?text={Text}"; // Формируем URL для поиска вакансий
 
@@ -62,6 +62,13 @@ namespace DownloadJobsConsoleApp
                 url += $"&industry={Industry}";
             }
 
+            // Добавляем параметр для специлизации, если он не пустой
+            if (!string.IsNullOrEmpty(Industry))
+            {
+                url += $"&professional_role={Specialization}";
+            }
+
+            Console.WriteLine($"{url}");
             Console.WriteLine("\nНачинаем собирать вакансии...\n");
             
 

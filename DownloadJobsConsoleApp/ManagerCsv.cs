@@ -14,7 +14,7 @@ namespace DownloadJobsConsoleApp
 
 
         // Генерация имени файла с текущей датой и временем (с миллисекундами)
-        static string fileName = $"Vacancy_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}.csv";
+        static string fileName = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}.csv";
         static string filePath = Path.Combine(directoryPath, fileName);
 
         // Метод для записи одиночной вакансии в CSV
