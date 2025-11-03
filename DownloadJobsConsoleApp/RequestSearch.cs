@@ -8,69 +8,34 @@ using DownloadJobsConsoleApp;
 using System.Linq;
 using System.Xml.Linq;
 
-
-
 namespace DownloadJobsConsoleApp
 {
     public static class RequestSearch
     {
-        // Поисковый запрос (название вакансии)
-        public static string Text { get; set; }
-
-        // Поисковый запрос (регион)
-        public static string Region { get; set; }
-
-
-        // Поисковый запрос (отрасль компании)
-        public static string Industry { get; set; }
-
-
-        // Поисковый запрос (специализация)
-        public static string Specialization { get; set; }
-
-
         // API для вакансий (пример с HH.ru)
         private static readonly string BaseUrl = "https://api.hh.ru/vacancies";
 
         // Метод для получения ID всех вакансий по заданному поисковому запросу
         public static async Task<List<int>> GetVacancyIdsAsync()
         {
-            Console.WriteLine("Введите название вакансии.");
-            Text = Console.ReadLine();
+            Console.WriteLine("Введите полный URL для поиска вакансий с сайта HH.ru");
+            Console.WriteLine("Пример: https://spb.hh.ru/search/vacancy?hhtmFrom=resume_search_result&hhtmFromLabel=vacancy_search_line&enable_snippets=false&industry=7&professional_role=157&search_field=name&search_field=company_name&search_field=description&text=");
+            Console.WriteLine("Вы можете использовать конструктор запросов на сайте HH.ru и скопировать URL из адресной строки браузера");
+            string userUrl = Console.ReadLine();
 
-            Console.WriteLine("Введите id региона.");
-            Region = Console.ReadLine();
+            // Преобразуем URL из браузерного формата в API формат
+            string apiUrl = ConvertBrowserUrlToApiUrl(userUrl);
 
-            Console.WriteLine("Введите id отрасли компании.");
-            Industry = Console.ReadLine();
-
-            Console.WriteLine("Введите id специализации.");
-            Specialization = Console.ReadLine();
-            
-            var vacancyIds = new List<int>(); // Список для хранения ID вакансий
-            string url = $"{BaseUrl}?text={Text}"; // Формируем URL для поиска вакансий
-
-            // Добавляем параметр для региона, если он не пустой
-            if (!string.IsNullOrEmpty(Region))
+            if (string.IsNullOrEmpty(apiUrl))
             {
-                url += $"&area={Region}";
+                Console.WriteLine("Не удалось преобразовать URL в формат API HH.ru");
+                return new List<int>();
             }
 
-            // Добавляем параметр для отрасли, если он не пустой
-            if (!string.IsNullOrEmpty(Industry))
-            {
-                url += $"&industry={Industry}";
-            }
-
-            // Добавляем параметр для специлизации, если он не пустой
-            if (!string.IsNullOrEmpty(Industry))
-            {
-                url += $"&professional_role={Specialization}";
-            }
-
-            Console.WriteLine($"{url}");
+            Console.WriteLine($"\nПреобразованный URL API: {apiUrl}");
             Console.WriteLine("\nНачинаем собирать вакансии...\n");
-            
+
+            var vacancyIds = new List<int>(); // Список для хранения ID вакансий
 
             try
             {
@@ -86,8 +51,13 @@ namespace DownloadJobsConsoleApp
 
                     while (hasNextPage)
                     {
+                        // Формируем URL с параметром страницы
+                        string urlWithPage = apiUrl.Contains('?')
+                            ? $"{apiUrl}&page={page}"
+                            : $"{apiUrl}?page={page}";
+
                         // Отправляем запрос на получение вакансий по указанному запросу и странице
-                        var response = await client.GetAsync($"{url}&page={page}");
+                        var response = await client.GetAsync(urlWithPage);
                         response.EnsureSuccessStatusCode();
 
                         // Получаем тело ответа от API
@@ -100,6 +70,8 @@ namespace DownloadJobsConsoleApp
                             vacancyIds.Add(vacancy.Id);
                         }
 
+                        Console.WriteLine($"Обработано {jobSearchResult.Items.Count} вакансий на странице {page + 1}");
+
                         // Проверяем, есть ли следующая страница
                         hasNextPage = jobSearchResult.Pages > page + 1;
                         page++;
@@ -111,10 +83,45 @@ namespace DownloadJobsConsoleApp
                 Console.WriteLine($"Ошибка при запросе вакансий: {ex.Message}");
             }
 
+            Console.WriteLine($"\nВсего найдено вакансий: {vacancyIds.Count}");
+
             // Возвращаем список всех ID вакансий
             return vacancyIds;
         }
 
+        // Метод для преобразования браузерного URL в API URL
+        private static string ConvertBrowserUrlToApiUrl(string browserUrl)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(browserUrl))
+                    return null;
+
+                // Если URL уже начинается с API, возвращаем как есть
+                if (browserUrl.StartsWith("https://api.hh.ru/vacancies"))
+                    return browserUrl;
+
+                // Если это браузерный URL, преобразуем его
+                if (browserUrl.Contains("hh.ru/search/vacancy"))
+                {
+                    // Извлекаем параметры запроса
+                    var uri = new Uri(browserUrl);
+                    var query = uri.Query;
+
+                    // Базовый URL API
+                    return $"https://api.hh.ru/vacancies{query}";
+                }
+
+                // Если это другой формат, который мы не ожидаем
+                Console.WriteLine("Предупреждение: URL может быть в неподдерживаемом формате");
+                return browserUrl;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при преобразовании URL: {ex.Message}");
+                return null;
+            }
+        }
 
         public static async Task LoadVacanciesAsync(List<int> jobIds)
         {
@@ -123,6 +130,9 @@ namespace DownloadJobsConsoleApp
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Profile.Token}");
                 client.DefaultRequestHeaders.Add("User-Agent", "YourAppName"); // Обязательно юзер-агент
                 client.DefaultRequestHeaders.Host = "api.hh.ru"; // Или нужный хост, если требуется
+
+                int processed = 0;
+                int total = jobIds.Count;
 
                 foreach (var jobId in jobIds)
                 {
@@ -148,6 +158,8 @@ namespace DownloadJobsConsoleApp
                             };
 
                             ManagerCsv.WriteReport(vacancy);
+                            processed++;
+                            Console.WriteLine($"Обработано вакансий: {processed}/{total}");
 
                             // Рандомная задержка
                             Random random = new Random();
@@ -178,8 +190,8 @@ namespace DownloadJobsConsoleApp
             }
         }
 
-       // Очистка от HTML
-    public static string CleanHtml(string html)
+        // Очистка от HTML
+        public static string CleanHtml(string html)
         {
             if (string.IsNullOrEmpty(html))
                 return string.Empty;
@@ -209,5 +221,5 @@ namespace DownloadJobsConsoleApp
         [JsonProperty("name")]
         public string Name { get; set; }
     }
-  
+
 }

@@ -37,7 +37,7 @@ namespace DownloadJobsConsoleApp
             Console.ResetColor();
 
             Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine($"Автор: { author}");
+            Console.WriteLine($"Автор: {author}");
             Console.WriteLine($"Дата релиза: {releaseDate}");
             Console.WriteLine($"{gitHub}\n");
             Console.ResetColor();
@@ -46,10 +46,15 @@ namespace DownloadJobsConsoleApp
 
             List<int> jobIds = await RequestSearch.GetVacancyIdsAsync();
 
-
-            await RequestSearch.LoadVacanciesAsync(jobIds);
-
-            Console.WriteLine($"\nГотово! CSV файл лежит в пути: C:\\...\\Documents\\HH Download Jobs ");
+            if (jobIds.Count > 0)
+            {
+                await RequestSearch.LoadVacanciesAsync(jobIds);
+                Console.WriteLine($"\nГотово! CSV файл лежит в пути: C:\\...\\Documents\\HH Download Jobs ");
+            }
+            else
+            {
+                Console.WriteLine($"\nНе найдено вакансий для указанного запроса.");
+            }
 
             Console.WriteLine("Нажмите любую клавишу для выхода...");
             Console.ReadKey();
